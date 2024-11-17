@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime
 import json
 from app.core.infrastructure.redis_client import get_redis_client
@@ -10,23 +11,24 @@ class IncidentsService:
         self.incident_counter_key = "incidents_counter"
     
     def save_data(self, data: IncidentResource):
-        try:
-            incident_id = self.client.incr(self.incident_counter_key)
+        with self.client.pipeline() as pipe:
+            incident_id = pipe.incr(self.incident_counter_key).execute()[0]
             incident_to_save = Incident(
                 id=incident_id,
                 title=data.title,
                 description=data.description,
                 status=data.status,
                 images=data.images,
-                created_at=datetime.now().strftime("%Y-%m-%d-%H:%M:%S"),
-                updated_at=datetime.now().strftime("%Y-%m-%d-%H:%M:%S"),
+                created_at=datetime.now().isoformat(),
+                updated_at=datetime.now().isoformat(),
             )
-            serialized_data = incident_to_save.model_dump()
-            self.client.json().set(f"incidents:{incident_id}", "$", serialized_data)
-            return incident_to_save
-        except Exception as e:
-            self.client.decr(self.incident_counter_key)
-            return {"error in IncidentsService": str(e)}
+            serialized_data = json.dumps(incident_to_save.__dict__)
+            try:
+                pipe.json().set(f"incidents:{incident_id}", "$" , serialized_data).execute()
+                return incident_to_save
+            except Exception as e:
+                self.client.decr(self.incident_counter_key)
+                return {"error in IncidentsService": str(e)}
 
     def delete_data(self, incident_id: int):
         try:
@@ -69,11 +71,18 @@ class IncidentsService:
             return data
         except Exception as e:
             return {"error": str(e)}
-
     def get_all_data(self):
         try:
-            keys = self.client.keys("incidents:*")
-            data = [self.client.json().get(key) for key in keys]
-            return data
-        except Exception as e:
+            keys = []
+            number_of_incidents = self.client.get(self.incident_counter_key)
+            for i in range(1, int(number_of_incidents) + 1):
+                keys.append(self.client.json().get(f"incidents:{i}"))
+            converted_keys = [json.loads(key) for key in keys]
+            return converted_keys
+        
+        except (ConnectionError, KeyError) as e:
+            logging.error(f"An error occurred while fetching data: {e}")
             return {"error": str(e)}
+
+    def _is_valid_format(self, item):
+        return isinstance(item, dict) and "expected_key" in item
