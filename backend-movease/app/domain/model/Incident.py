@@ -6,13 +6,11 @@ class IncidentResource(BaseModel):
     title: str
     description: str
     status: str
+    images: List[str] = []
 
 
-class Incident(BaseModel):
+class Incident(IncidentResource):
     id: int
-    title: str
-    description: str
-    status: str
     created_at: str
     updated_at: str
 

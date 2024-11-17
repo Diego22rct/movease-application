@@ -8,7 +8,7 @@ class IncidentsService:
     def __init__(self):
         self.client = get_redis_client()
         self.incident_counter_key = "incidents_counter"
-
+    
     def save_data(self, data: IncidentResource):
         try:
             incident_id = self.client.incr(self.incident_counter_key)
@@ -17,6 +17,7 @@ class IncidentsService:
                 title=data.title,
                 description=data.description,
                 status=data.status,
+                images=data.images,
                 created_at=datetime.now().strftime("%Y-%m-%d-%H:%M:%S"),
                 updated_at=datetime.now().strftime("%Y-%m-%d-%H:%M:%S"),
             )
@@ -43,15 +44,10 @@ class IncidentsService:
             return {"error": "Incident not found"}
         try:
             self.client.json().set(f"incidents:{key}", "$.title", data.title)
-            self.client.json().set(
-                f"incidents:{key}", "$.description", data.description
-            )
+            self.client.json().set(f"incidents:{key}", "$.description", data.description)
             self.client.json().set(f"incidents:{key}", "$.status", data.status)
-            self.client.json().set(
-                f"incidents:{key}",
-                "$.updated_at",
-                datetime.now().strftime("%Y-%m-%d-%H:%M:%S"),
-            )
+            self.client.json().set(f"incidents:{key}", "$.images", data.images)
+            self.client.json().set(f"incidents:{key}", "$.updated_at", datetime.now().strftime("%Y-%m-%d-%H:%M:%S"))
             return {
                 "message": f"Incident with ID {key} updated",
                 "data": Incident(
@@ -59,6 +55,7 @@ class IncidentsService:
                     title=data.title,
                     description=data.description,
                     status=data.status,
+                    images=data.images,
                     created_at=saved_incident_json.get("created_at"),
                     updated_at=datetime.now().strftime("%Y-%m-%d-%H:%M:%S"),
                 ),
