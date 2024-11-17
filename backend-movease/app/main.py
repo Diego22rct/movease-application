@@ -15,7 +15,7 @@ app.add_middleware(
 
 @app.get("/")
 def read_root():
-    return {"message": "Welcome to the FastAPI + Redis project!"}
+    return {"message": "Welcome to the FastAPI + Redis project by the team 5! "}
 
 
 app.include_router(incidentsRoute.router, tags=["Incidents"], prefix="/api/v1")
