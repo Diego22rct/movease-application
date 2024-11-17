@@ -54,3 +54,33 @@
 		<button type="submit">Agregar Incidencia</button>
 	</form>
 </div>
+
+<style>
+	.container {
+		max-width: 800px;
+		margin: 0 auto;
+	}
+	form {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		grid-gap: 1rem;
+	}
+	label {
+		font-weight: bold;
+	}
+	input, textarea, select {
+		width: 100%;
+		padding: 0.5rem;
+	}
+	button {
+		grid-column: span 2;
+		padding: 0.5rem;
+		background-color: #007bff;
+		color: white;
+		border: none;
+		cursor: pointer;
+	}
+	button:hover {
+		background-color: #0056b3;
+	}
+</style>
