@@ -105,7 +105,7 @@
         </select>
 
         <label for="images">Imágenes:</label>
-        <input type="file" id="images" multiple accept="image/*" on:change={handleFileChange} />
+        <input type="file" id="images" multiple accept="image/*" onchange={handleFileChange} />
 
         <button type="submit">Agregar Incidencia</button>
     </form>
