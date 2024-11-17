@@ -6,7 +6,7 @@ class IncidentResource(BaseModel):
     title: str
     description: str
     status: str
-    images: List[str] = []
+    images: list[str] = []
 
 
 class Incident(IncidentResource):
