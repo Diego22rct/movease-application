@@ -13,14 +13,18 @@ const handleFileChange = (event) => {
 };
 
 const agregarIncidencia = async (event) => {
-	event.preventDefault(); // Evita que el formulario se envíe de forma predeterminada
+	event.preventDefault(); 
 
-	const formData = new FormData();
-	formData.append("title", $title);
-	formData.append("description", $description);
-	formData.append("status", $status);
+	if (images.length === 0) {
+		alert("Debe seleccionar al menos una imagen.");
+		return;
+	}
 
-	// Validación y carga de imágenes
+	if (images.length > 3) {
+		alert("Solo se pueden subir un máximo de 3 imágenes.");
+		return;
+	}
+
 	for (const image of images) {
 		if (image.size > 5 * 1024 * 1024) {
 			alert(
@@ -33,21 +37,30 @@ const agregarIncidencia = async (event) => {
 			alert("El archivo seleccionado no es una imagen.");
 			return;
 		}
-		if (images.length > 3) {
-			alert("Solo se pueden subir 3 imágenes");
-			return;
-		}
-
-		formData.append("images", image);
 	}
 
+	// Crear el objeto de incidencia
+	const incident = {
+		title: $title,
+		description: $description,
+		status: $status,
+	};
+
+	// Crear el objeto FormData
+	const formData = new FormData();
+	formData.append("title", $title);
+	formData.append("description", $description);
+	formData.append("status", $status);
+
+	for (const image of images) {
+		formData.append("images[]", image);
+	}
+
+	// Realizar la solicitud POST con el archivo
 	try {
-		const response = await fetch("http://localhost:8000/api/v1/incidents", {
+		const response = await fetch("http://localhost:8000/api/v1/incidents/upload", {
 			method: "POST",
 			body: formData,
-			headers: {
-				accept: "application/json",
-			},
 		});
 
 		if (response.ok) {
@@ -55,15 +68,13 @@ const agregarIncidencia = async (event) => {
 			goto("/incidents");
 		} else {
 			const errorData = await response.json();
-			alert(
-				`Error al agregar incidencia: ${errorData.error || "Error desconocido"}`,
-			);
+			alert(`Error al agregar incidencia: ${errorData.error}`);
 		}
 	} catch (error) {
-		console.error("Error al agregar incidencia:", error);
-		alert("Error al agregar incidencia");
+		alert(`Error al realizar la solicitud: ${error.message}`);
 	}
 };
+
 
 </script>
 

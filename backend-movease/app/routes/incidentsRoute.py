@@ -7,7 +7,7 @@ router = APIRouter()
 service = IncidentsService()
 
 
-@router.post("/api/v1/incidents")
+@router.post("/incidents/upload")
 async def create_incident(
     title: str = Form(...),
     description: str = Form(...),
@@ -56,7 +56,7 @@ def read_incident(key: str):
         return {"error": str(e)}
 
 
-@router.get("/incidents/")
+@router.get("/incidents/all")
 def read_all_incidents():
     try:
         return service.get_all_data()

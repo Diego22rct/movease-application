@@ -71,11 +71,13 @@ class IncidentsService:
             return data
         except Exception as e:
             return {"error": str(e)}
+        
     def get_all_data(self):
         try:
             keys = []
+            
             number_of_incidents = self.client.get(self.incident_counter_key)
-            for i in range(1, int(number_of_incidents) + 1):
+            for i in range(0, int(number_of_incidents) + 1):
                 keys.append(self.client.json().get(f"incidents:{i}"))
             converted_keys = [json.loads(key) for key in keys]
             return converted_keys
@@ -83,6 +85,6 @@ class IncidentsService:
         except (ConnectionError, KeyError) as e:
             logging.error(f"An error occurred while fetching data: {e}")
             return {"error": str(e)}
-
+        
     def _is_valid_format(self, item):
-        return isinstance(item, dict) and "expected_key" in item
+            return isinstance(item, dict) and "expected_key" in item
