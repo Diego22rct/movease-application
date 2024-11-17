@@ -4,4 +4,4 @@ COPY pyproject.toml poetry.lock ./
 RUN pip install poetry && poetry install
 COPY . .
 EXPOSE 8000
-CMD ["poetry", "run", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["poetry", "run", "fastapi", "run", "--port", "8003", "--port", ".\app\main.py"]
