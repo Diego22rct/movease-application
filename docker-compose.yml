@@ -1,4 +1,9 @@
 services:
+  redis:
+    image: redis/redis-stack:latest
+    ports:
+      - "6379:6379"
+
   backend:
     build: ./backend-movease
     ports:
@@ -8,14 +13,15 @@ services:
     environment:
       REDIS_HOST: redis
       REDIS_PORT: 6379
+    links:
+      - redis
+
   frontend:
     build: ./frontend-movease
     ports:
       - "80:80"
     depends_on:
       - backend
-
-  redis:
-    image: redis/redis-stack:latest
-    ports:
-      - "6379:6379"
+    environment:
+      BACKEND_HOST: backend
+      BACKEND_PORT: 8000
